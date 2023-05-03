@@ -1,6 +1,6 @@
-const mongoose = require('mongoose'); 
-const Schema = mongoose. Schema;
-const PostSchema = require('./post_schema')
+const mongoose = require('mongoose');
+const PostSchema = require('./post_schema');
+const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   name: {
@@ -21,6 +21,13 @@ const UserSchema = new Schema({
 
 UserSchema.virtual('postCount').get(function() {
   return this.posts.length;
+});
+
+UserSchema.pre('deleteOne', { document: true } , function(next) {
+  const BlogPost = mongoose.model('blogPost');
+  // this === joe
+  BlogPost.deleteMany({ _id: { $in: this.blogPosts } })
+    .then(() => next());
 });
 
 const User = mongoose.model('user', UserSchema);
